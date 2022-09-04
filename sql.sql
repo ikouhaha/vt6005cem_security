@@ -10,9 +10,22 @@ CREATE TABLE `sys_user` (
 	`phone` INT(8),
 	`address` VARCHAR(512),
 	`salt` VARCHAR(512),
+	`role` VARCHAR(100) NOT NULL DEFAULT 'user',
 	PRIMARY KEY (`id`),
 	UNIQUE INDEX `email_UNIQUE` (`email` ASC)
 );
+
+
+CREATE TABLE `sys_session` (
+	`id` VARCHAR(128) NOT NULL,
+	`user_id` INT NOT NULL,
+	`start` INT NOT NULL,
+	`expire` INT NOT NULL,
+	PRIMARY KEY (`id`),
+	 FOREIGN KEY (user_id) REFERENCES sys_user(id)
+);
+
+
 
 CREATE TABLE `hkid_appointment` (
 	`hkid` VARCHAR(512),
