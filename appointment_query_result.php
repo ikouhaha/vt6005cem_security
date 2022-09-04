@@ -54,24 +54,24 @@
 
     {
         // Search user table to see whether user name is exist
-        $search_sql = $conn->prepare("select * from hkid_appointment where email = ? and status <> 'rejected'");
+        $search_sql = $conn->prepare("select * from hkid_appointment where email = ? and dob = ? and hkid = ?");
         $search_sql->bind_param("s", $id);
         $search_sql->execute();
         $search_sql->store_result();
 
         // If login name can be found in table "user", forbid user register process
 
-        if ($search_sql->num_rows > 0) {
-            echo "<h2>The appointment is made. Please check with the result</h2>";
+        if ($search_sql->num_rows <= 0) {
+            echo "<h2>Can't found the result.</h2>";
         } else {
-            $insert_sql = $conn->prepare("insert into user (hkid, ename, cname, dob, gender,email,phone,address,salt,status) values (?, ?, ?, ?, ?,?,?,?,?,?)");
-            $salt = generateSalt(16);
-            $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
-            $encrypted = openssl_encrypt($hkid, 'aes-256-cbc', $aesKey + $salt, 0, $iv);
+            // $insert_sql = $conn->prepare("insert into user (hkid, ename, cname, dob, gender,email,phone,address,salt,status) values (?, ?, ?, ?, ?,?,?,?,?,?)");
+            // $salt = generateSalt(16);
+            // $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+            // $encrypted = openssl_encrypt($hkid, 'aes-256-cbc', $aesKey + $salt, 0, $iv);
 
-            $insert_sql->bind_param("ssssssssss", $encrypted, $ename, $cname, $dob, $gender, $email, $phone, $address, $salt, $status);
-            $insert_sql->execute();
-            echo "<h2>Appointment Success!!</h2>";
+            // $insert_sql->bind_param("ssssssssss", $encrypted, $ename, $cname, $dob, $gender, $email, $phone, $address, $salt, $status);
+            // $insert_sql->execute();
+            // echo "<h2>Appointment Success!!</h2>";
         }
     } else {
         echo "<h3> $errMsg </h3>";

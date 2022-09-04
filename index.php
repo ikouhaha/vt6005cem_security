@@ -11,6 +11,7 @@
 <p>Select function:</p>
 <p><a href="add_student_form.php">staff login</a></p>
 <p><a href="appointment_form.php">Appointment</a></p>
+<p><a href="appointment_query.php">Appointment Query</a></p>
 <p>&nbsp;</p>
 </body>
 </html>
