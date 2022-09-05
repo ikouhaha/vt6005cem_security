@@ -21,6 +21,7 @@ CREATE TABLE `sys_session` (
 	`user_id` INT NOT NULL,
 	`start` INT NOT NULL,
 	`expire` INT NOT NULL,
+	`client_ip` VARCHAR(36) NOT NULL,
 	PRIMARY KEY (`id`),
 	 FOREIGN KEY (user_id) REFERENCES sys_user(id)
 );

@@ -14,16 +14,20 @@ if ($conn->connect_error)
     die("Connection failed: ". $conn->connect_error);
 } 
 
+session_start();
+
+if (!isset($_SESSION['sessionId'])) {
+    echo "Please Login first <br/>";
+    echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
+    return;
+}
+
+
+
 // Get user input from the form submitted before
 
-$ename = $_POST["ename"];
-$cname = $_POST["cname"];
 $hkid = $_POST["hkid"];
-$gender = $_POST["gender"];
-$email = $_POST["email"];
-$phone = $_POST["phone"];
-$address = $_POST["address"];
-$dob = $_POST["dob"];
+
 // Set a flag to assume all user input follow the format
 $allDataCorrect = true;
 $aesKey = "1234567890123456";
@@ -32,75 +36,12 @@ $aesKey = "1234567890123456";
 $errMsg = "";
     
 // Check all data whether follow the format
-if(!preg_match("/[A-Z]([a-zA-Z]|\s)*/",$ename))
-{
-    $allDataCorrect = false;
-    $errMsg = $errMsg . "English Name should be composed with English characters start with capital letter<br><br>"; 
-}
-
-if(!preg_match("/\p{Han}+/u",$cname))
-{
-    $allDataCorrect = false;
-    $errMsg = $errMsg . "Chinese Name should be composed with Chinese characters<br><br>"; 
-}
-
 
 if(!preg_match("/[A-Z]{1,2}[0-9]{6}\([0-9A]\)/",$hkid))
 {
     $allDataCorrect = false;
     $errMsg = $errMsg . "HKID should be composed with capital letter and 6 digits and a bracket with a digit or capital letter<br><br>"; 
 }
-
-
-if(!preg_match("/^(male|female)$/",$gender))
-{
-    $allDataCorrect = false;
-    $errMsg = $errMsg . "Please choose the valid gender<br><br>"; 
-}
-
-if(!preg_match("/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/",$email))
-{
-    $allDataCorrect = false;
-    $errMsg = $errMsg . "Email should contain @ character <br><br>"; 
-}
-
-if(!preg_match("/^[0-9]{8}$/",$phone))
-{
-    $allDataCorrect = false;
-    $errMsg = $errMsg . "Phone number should be composed with 8 digits<br><br>"; 
-}
-
-if(!preg_match("/([a-zA-Z1-9]|\s|\p{Han}+)*/",$address))
-{
-    $allDataCorrect = false;
-    $errMsg = $errMsg . "Address not valid<br><br>"; 
-}
-
-if(!preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/",$dob))
-{
-    $allDataCorrect = false;
-    $errMsg = $errMsg . "Date of birth should be composed with 4 digits, 2 digits, 2 digits<br><br>"; 
-}
-
-// if(!preg_match("/^[a-zA-Z0-9?!_)]{8,}$/",$pwd))
-// {
-//     $allDataCorrect = false;
-//     $errMsg = $errMsg . "Password should be composed with at least 8 alphanumeric characters and ? ! _ symbol <br><br>"; 
-// }
-
-
-
-// if(!preg_match("/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/",$email))
-// {
-//     $allDataCorrect = false;
-//     $errMsg = $errMsg . "Email should contain @ character <br><br>"; 
-// }
-
-// if(!preg_match("/^#[a-fA-F0-9]{6,6}$/",$color))
-// {
-//     $allDataCorrect = false;
-//     $errMsg = $errMsg . "Color code should be composed with # symbol and hex number <br><br>"; 
-// }
 
   
 if($allDataCorrect)

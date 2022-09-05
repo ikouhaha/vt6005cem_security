@@ -46,12 +46,14 @@ if($search_sql->num_rows > 0)
         
         $sid = uniqid();
         $_SESSION['sessionId'] = $sid;
+        $ip = getIP();
         $start = time();
         $expire = $start + (30*60);// 30min
-        $search_sql = $conn->prepare("insert into sys_session(id,user_id,start,expire) values(?,?,?,?)");
-        $search_sql->bind_param("siii", $sid,$id,$start,$expire);
+        $search_sql = $conn->prepare("insert into sys_session(id,user_id,start,expire,client_ip) values(?,?,?,?,?)");
+        $search_sql->bind_param("siiis", $sid,$id,$start,$expire,$ip);
         $search_sql->execute();
         header('Location: index.php');
+        
 
     }
     else
@@ -66,6 +68,23 @@ else
 
 // Close connection
 mysqli_close($conn);
+
+
+Function getIP(){
+    $ip='';
+    IF(Getenv('HTTP_CLIENT_IP') And StrCaseCmp(Getenv('HTTP_CLIENT_IP'),'unknown')){
+        $ip=Getenv('HTTP_CLIENT_IP');
+    }ElseIF(Getenv('HTTP_X_FORWARDED_FOR') And StrCaseCmp(Getenv('HTTP_X_FORWARDED_FOR'),'unknown')){
+        $ip=Getenv('HTTP_X_FORWARDED_FOR');
+    }ElseIF(Getenv('REMOTE_ADDR')And StrCaseCmp(Getenv('REMOTE_ADDR'),'unknown')){
+        $ip=Getenv('REMOTE_ADDR');
+    }ElseIF(isset($_SERVER['REMOTE_ADDR']) And $_SERVER['REMOTE_ADDR'] And StrCaseCmp($_SERVER['REMOTE_ADDR'],'unknown')){
+        $ip=$_SERVER['REMOTE_ADDR'];
+    }Else{
+        $ip='127.0.0.1';
+    }
+    Return $ip;
+}
 
 
 ?>
