@@ -1,4 +1,29 @@
 
+CREATE TABLE `sys_lookup_value` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`type` VARCHAR(10) NOT NULL,
+	`value` VARCHAR(100) NOT NULL,
+	`display` VARCHAR(512) NOT NULL,
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `value_UNIQUE` (`value` ASC)
+);
+
+insert into  `sys_lookup_value` (type,value,display) values ('time','9:00','9:00');
+insert into  `sys_lookup_value` (type,value,display) values ('time','10:00','10:00');
+insert into  `sys_lookup_value` (type,value,display) values ('time','14:00','14:00');
+insert into  `sys_lookup_value` (type,value,display) values ('time','16:00','16:00');
+
+insert into  `sys_lookup_value` (type,value,display) values ('venues','kt','Kwun Tong');
+insert into  `sys_lookup_value` (type,value,display) values ('venues','st','Shatin');
+insert into  `sys_lookup_value` (type,value,display) values ('venues','ct','Central');
+insert into  `sys_lookup_value` (type,value,display) values ('venues','wc','Wanchai');
+
+insert into  `sys_lookup_value` (type,value,display) values ('cardtype','bc','Birth certificate');
+insert into  `sys_lookup_value` (type,value,display) values ('cardtype','pp','Passport');
+insert into  `sys_lookup_value` (type,value,display) values ('cardtype','hkid','HKID');
+
+
+
 CREATE TABLE `sys_user` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`pwd` VARCHAR(512) NOT NULL,
@@ -29,18 +54,19 @@ CREATE TABLE `sys_session` (
 
 
 CREATE TABLE `hkid_appointment` (
-	`hkid` VARCHAR(512),
-	`ename` TEXT(100),
-	`cname` VARCHAR(100),
-	`dob` DATE,
-	`gender` VARCHAR(5),
-	`email` VARCHAR(100),
-	`phone` INT,
-	`address` VARCHAR(200),
-	`salt` VARCHAR(255),
-    `status` VARCHAR(10),
-	PRIMARY KEY (`hkid`),
-    UNIQUE(`email`)
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`type` VARCHAR(10) NOT NULL,
+	`card_type` VARCHAR(10) NOT NULL,
+	`card_no` VARCHAR(512) NOT NULL,
+	`user_id` int NOT NULL,
+	`venue` VARCHAR(10) NOT NULL,
+	`date` DATE NOT NULL,
+	`time` VARCHAR(10) NOT NULL,	
+	`query_code` VARCHAR(4) NOT NULL,
+    `status` VARCHAR(10) NOT NULL,
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (user_id) REFERENCES sys_user(id)
+  
 );
 
 

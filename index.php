@@ -44,7 +44,7 @@
             echo "<a href='logout.php'>Logout</a>";
             echo "<p>Select function:</p>";
             echo "<p><a href='appointment_form.php'>Make an appointment</a></p>";
-            echo "<p><a href='appointment_list.php'>View appointment list</a></p>";
+            echo "<p><a href='appointment_query.php'>Query appointment</a></p>";
         }
     } else {
         echo "Please Login first <br/>";

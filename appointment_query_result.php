@@ -15,6 +15,36 @@
         die("Connection failed: " . $conn->connect_error);
     }
 
+    //--------------------------checking session start--------------------------
+session_start();
+
+if (!isset($_SESSION['sessionId'])) {
+    echo "Please Login first <br/>";
+    echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
+    return;
+}
+
+$search_sql = $conn->prepare("SELECT a.user_id,a.start,a.expire,b.email FROM sys_session a inner join sys_user b on a.user_id = b.id where a.id = ?");
+$search_sql->bind_param("s", $_SESSION['sessionId']);
+$search_sql->execute();
+$search_sql->store_result();
+$now = time();
+if ($search_sql->num_rows > 0) {
+    $search_sql->bind_result($uid, $start, $expire, $email);
+    $search_sql->fetch();
+    
+    if ($now > $expire) {
+        echo "Your session has expired! <a href='login_form.php'>Login here</a>";
+        return;
+    } 
+} else {
+    echo "Please Login first <br/>";
+    echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
+    return;
+}
+//--------------------------checking session end--------------------------
+
+
     // Get user input from the form submitted before
     $hkid = $_POST["hkid"];
     $email = $_POST["email"];
@@ -96,9 +126,9 @@
     }
 
     ?>
-    <a href="appointment_form.php">Go back to appointment page</a>
+    <a href="appointment_query.php">Go back to query appointment page</a>
     <br><br>
-    <a href="appointment_query.php">Go back to appointment query page</a>
+    <a href="appointment_form.php">Go  to appointment  page</a>
     <br><br>
     <a href="index.php">Go to Home page</a>
 </body>

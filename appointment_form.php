@@ -19,13 +19,35 @@
     die("Connection failed: " . $conn->connect_error);
   }
 
-  session_start();
+//--------------------------checking session start--------------------------
+session_start();
 
-  if (!isset($_SESSION['sessionId'])) {
+if (!isset($_SESSION['sessionId'])) {
     echo "Please Login first <br/>";
     echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
     return;
-  }
+}
+
+$search_sql = $conn->prepare("SELECT a.user_id,a.start,a.expire,b.email FROM sys_session a inner join sys_user b on a.user_id = b.id where a.id = ?");
+$search_sql->bind_param("s", $_SESSION['sessionId']);
+$search_sql->execute();
+$search_sql->store_result();
+$now = time();
+if ($search_sql->num_rows > 0) {
+    $search_sql->bind_result($uid, $start, $expire, $email);
+    $search_sql->fetch();
+    
+    if ($now > $expire) {
+        echo "Your session has expired! <a href='login_form.php'>Login here</a>";
+        return;
+    } 
+} else {
+    echo "Please Login first <br/>";
+    echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
+    return;
+}
+//--------------------------checking session end--------------------------
+
 
   ?>
 
@@ -42,25 +64,73 @@
         <label class="form-check-label" for="change">change new HKID card</label>
       </div>
     </div>
-    <div id="hkidarea" class="form-group">
+    <div id="passportarea" class="form-group">
+    Certificate Type*:
+      <select name="cardtype" id="cardtype" required>
+        <?php
 
-      HKID*: <input name="hkid" type="text" size="30" maxlength="100" placeholder="eg. Z683365(5)" required>
+        $sql = "SELECT value,display FROM sys_lookup_value where type = 'cardtype'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+          // output data of each row
+          while ($row = $result->fetch_assoc()) {
+            echo sprintf("<option id=\"%s\" value=" . $row["value"] . ">" . $row["display"] . "</option>","card".$row["value"]);
+          }
+        } else {
+          echo "0 results";
+        }
+        ?>
+      </select>
+      Certificate Number*: <input name="cardno" id="cardno" type="text" size="30" maxlength="100" placeholder="" required>
+    </div>
+
+    <div class="form-group">
+      Appointment Date*:
+      <?php
+      echo  sprintf("<input type=\"date\" id=\"start\" name=\"date\" min=\"%s\" max=\"%s\" list=\"date-list\" step=\"4\" required>", date("Y-m-d"), date("Y-m-d", strtotime("+2 month")));
+      ?>
+
     </div>
     <div class="form-group">
-      Appointment Date*:<input type="date" id="start" name="dob" list="date-list">
-       <datelist id="date-list">
-        <option id="01" value="2021-10-01">2021-10-01</option>
-       </datelist>
+      Appointment Time*:
+      <select name="time" id="time">
+        <?php
+
+        $sql = "SELECT value,display FROM sys_lookup_value where type = 'time'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+          // output data of each row
+          while ($row = $result->fetch_assoc()) {
+            echo "<option value=" . $row["value"] . ">" . $row["display"] . "</option>";
+          }
+        } else {
+          echo "0 results";
+        }
+        ?>
+      </select>
     </div>
     <div class="form-group">
-      <input type="time" id="appt" name="appt" list="time-list">
+      venues*:
+      <select name="venue" id="venue">
+        <?php
 
-      <datalist id="time-list">
-        <option id="09" name="09" value="09:30" datatype="time">
-        <option id="10" name="10" value="10:30" datatype="time">
-        <option id="13" name="13" value="13:30" datatype="time">
-        <option id="20" name="20" value="20:30" datatype="time">
-      </datalist>
+        $sql = "SELECT value,display FROM sys_lookup_value where type = 'venues'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+          // output data of each row
+          while ($row = $result->fetch_assoc()) {
+            echo "<option value=" . $row["value"] . ">" . $row["display"] . "</option>";
+          }
+        } else {
+          echo "0 results";
+        }
+        ?>
+
+      </select>
+    </div>
+    <div class="form-group">
+      <p> <b>Please enter a custom 4-digit query code. You will need to enter this code if you need to check your appointment information later.</b> </p> 
+      Query Code*<input type="text" name="querycode" id="querycode"  required>
     </div>
 
     <div class="form-group">
@@ -75,11 +145,20 @@
   showhkid()
 
   function showhkid() {
-    var x = document.getElementById("hkidarea");
+ 
     if (document.getElementById("apply").checked) {
-      x.style.display = "none";
+      document.getElementById("cardtype").value = "bc";
+      document.getElementById("cardbc").disabled = false;
+      document.getElementById("cardpp").disabled = false;
+      document.getElementById("cardhkid").disabled = true;
+      document.getElementById("cardno").placeholder = "";
+
     } else {
-      x.style.display = "block";
+      document.getElementById("cardtype").value = "hkid";
+      document.getElementById("cardbc").disabled = true;
+      document.getElementById("cardpp").disabled = true;
+      document.getElementById("cardhkid").disabled = false;
+      document.getElementById("cardno").placeholder = "eg. A123456(7)";
     }
   }
 </script>
