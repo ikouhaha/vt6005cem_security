@@ -49,15 +49,53 @@ if ($search_sql->num_rows > 0) {
 
 
   ?>
-  
 <h2><a href="index.php">Home</a></h2>
 <form action="appointment_query_result.php" method="post">
 <h2>Appointment query *required</h2>
 
-Query No*: <input type="text" name="queryno" required><br>
-HKID/Birth Certificate/Passport*: <input name="cardno" type="text" size="30" maxlength="100" placeholder="eg. Z683365(5)" required><br><br>
+Query No*: <input type="text" name="querycode" required><br>
+<div id="passportarea" class="form-group">
+    Certificate Type*:
+      <select name="cardtype" id="cardtype" required>
+        <?php
+
+        $sql = "SELECT value,display FROM sys_lookup_value where type = 'cardtype'";
+        $result = $conn->query($sql);
+        if ($result->num_rows > 0) {
+          // output data of each row
+          while ($row = $result->fetch_assoc()) {
+            echo sprintf("<option id=\"%s\" value=" . $row["value"] . ">" . $row["display"] . "</option>","card".$row["value"]);
+          }
+        } else {
+          echo "0 results";
+        }
+        ?>
+      </select>
+      Certificate Number*: <input name="cardno" id="cardno" type="text" size="30" maxlength="100" placeholder="" required>
+    </div>
 
 <input name="submit" type="submit" value="submit">
 </form>
 </body>
 </html>
+<script>
+  showhkid()
+
+  function showhkid() {
+ 
+    if (document.getElementById("apply").checked) {
+      document.getElementById("cardtype").value = "bc";
+      document.getElementById("cardbc").disabled = false;
+      document.getElementById("cardpp").disabled = false;
+      document.getElementById("cardhkid").disabled = true;
+      document.getElementById("cardno").placeholder = "";
+
+    } else {
+      document.getElementById("cardtype").value = "hkid";
+      document.getElementById("cardbc").disabled = true;
+      document.getElementById("cardpp").disabled = true;
+      document.getElementById("cardhkid").disabled = false;
+      document.getElementById("cardno").placeholder = "eg. A123456(7)";
+    }
+  }
+</script>

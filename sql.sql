@@ -8,6 +8,10 @@ CREATE TABLE `sys_lookup_value` (
 	UNIQUE INDEX `value_UNIQUE` (`value` ASC)
 );
 
+insert into  `sys_lookup_value` (type,value,display) values ('type','apply','apply the HKID card');
+insert into  `sys_lookup_value` (type,value,display) values ('type','change','change new HKID card');
+
+
 insert into  `sys_lookup_value` (type,value,display) values ('time','9:00','9:00');
 insert into  `sys_lookup_value` (type,value,display) values ('time','10:00','10:00');
 insert into  `sys_lookup_value` (type,value,display) values ('time','14:00','14:00');
@@ -63,6 +67,7 @@ CREATE TABLE `hkid_appointment` (
 	`date` DATE NOT NULL,
 	`time` VARCHAR(10) NOT NULL,	
 	`query_code` VARCHAR(4) NOT NULL,
+	`salt` VARCHAR(512) NOT NULL,
     `status` VARCHAR(10) NOT NULL,
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (user_id) REFERENCES sys_user(id)

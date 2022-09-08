@@ -16,119 +16,142 @@
     }
 
     //--------------------------checking session start--------------------------
-session_start();
+    session_start();
 
-if (!isset($_SESSION['sessionId'])) {
-    echo "Please Login first <br/>";
-    echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
-    return;
-}
-
-$search_sql = $conn->prepare("SELECT a.user_id,a.start,a.expire,b.email FROM sys_session a inner join sys_user b on a.user_id = b.id where a.id = ?");
-$search_sql->bind_param("s", $_SESSION['sessionId']);
-$search_sql->execute();
-$search_sql->store_result();
-$now = time();
-if ($search_sql->num_rows > 0) {
-    $search_sql->bind_result($uid, $start, $expire, $email);
-    $search_sql->fetch();
-    
-    if ($now > $expire) {
-        echo "Your session has expired! <a href='login_form.php'>Login here</a>";
+    if (!isset($_SESSION['sessionId'])) {
+        echo "Please Login first <br/><br/>";
+        echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
         return;
-    } 
-} else {
-    echo "Please Login first <br/>";
-    echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
-    return;
-}
-//--------------------------checking session end--------------------------
+    }
+
+    $search_sql = $conn->prepare("SELECT a.user_id,a.start,a.expire,b.email FROM sys_session a inner join sys_user b on a.user_id = b.id where a.id = ?");
+    $search_sql->bind_param("s", $_SESSION['sessionId']);
+    $search_sql->execute();
+    $search_sql->store_result();
+    $now = time();
+    if ($search_sql->num_rows > 0) {
+        $search_sql->bind_result($uid, $start, $expire, $email);
+        $search_sql->fetch();
+
+        if ($now > $expire) {
+            echo "Your session has expired! <a href='login_form.php'>Login here</a>";
+            return;
+        }
+    } else {
+        echo "Please Login first <br/><br/>";
+        echo "<a href='login_form.php'>Click Here to Login</a> or <a href='register_form.php'>Click Here to Register</a>";
+        return;
+    }
+    //--------------------------checking session end--------------------------
 
 
     // Get user input from the form submitted before
-    $hkid = $_POST["hkid"];
-    $email = $_POST["email"];
-    $dob = $_POST["dob"];
-    // Set a flag to assume all user input follow the format
+
+    $cardno = $_POST["cardno"];
+    $querycode = $_POST["querycode"];
+    $cardtype = $_POST["cardtype"];
+
+
     $allDataCorrect = true;
-    $aesKey = "1234567890123456";
+
+    $aesKey = "12345678123456781234567812345678";
 
     // Set empty string with error message
     $errMsg = "";
 
-    if (!preg_match("/^[A-Z]{1,2}[0-9]{6}\([0-9A]\)$/", $hkid)) {
+    if (!preg_match("/^(bc|pp|hkid)$/", $cardtype)) {
         $allDataCorrect = false;
-        $errMsg = $errMsg . "HKID should be composed with capital letter and 6 digits and a bracket with a digit or capital letter<br><br>";
+        $errMsg .= "Please select the certificate type <br/><br/>";
     }
 
-
-    if (!preg_match("/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/", $email)) {
-        $allDataCorrect = false;
-        $errMsg = $errMsg . "Email should contain @ character <br><br>";
-    }
-
-
-    if (!preg_match("/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/", $dob)) {
-        $allDataCorrect = false;
-        $errMsg = $errMsg . "Date of birth should be composed with 4 digits, 2 digits, 2 digits<br><br>";
+    //check certificate number
+    if ($cardtype == "bc") {
+        if (!preg_match("/^[A-Z]{1,2}[0-9]{6}\([0-9A]\)$/", $cardno)) {
+            $allDataCorrect = false;
+            $errMsg .= "Please enter the correct birth certificate number <br/><br/>";
+        }
+    } else if ($cardtype == "pp") {
+        if (!preg_match("/^[A-Z]{1,2}[0-9]{6,7}[0-9A-F]{1}$/", $cardno)) {
+            $allDataCorrect = false;
+            $errMsg .= "Please enter the correct passport number <br/><br/>";
+        }
+    } else if ($cardtype == "hkid") {
+        if (!preg_match("/^[A-Z]{1,2}[0-9]{6}\([0-9A]\)$/", $cardno)) {
+            $allDataCorrect = false;
+            $errMsg .= "Please enter the correct HKID number <br/><br/>";
+        }
     }
 
 
     if ($allDataCorrect)
 
-    // // Select database to search the corresponding user row
-    // $search_sql = $conn->prepare("SELECT * FROM user WHERE id = ? AND pwd = ?");
-    // $search_sql->bind_param("ss", $id, $pwd);
-    // $search_sql->execute();
-    // $search_sql->store_result();
 
     {
-        // Search user table to see whether user name is exist
-        $search_sql = $conn->prepare("select * from hkid_appointment where email = ? and dob = ? and hkid = ?");
-        $search_sql->bind_param("s", $id);
+
+
+        $search_sql = $conn->prepare("select ltype.display as type,b.ename,b.cname,b.dob,b.gender,b.email,b.phone,b.address,a.status,a.card_no,a.date,ltime.display as time,lvenue.display as venue,a.iv  
+        from hkid_appointment a inner join sys_user b on a.user_id = b.id
+        left join sys_lookup_value ltype on ltype.type = 'type' and ltype.value = a.type
+        left join sys_lookup_value ltime on ltime.type = 'time' and ltime.value = a.time
+        left join sys_lookup_value lvenue on lvenue.type = 'venues' and lvenue.value = a.venue where card_type = ?  and query_code = ?");
+        
+        
+        $search_sql->bind_param("ss", $cardtype, $querycode);
         $search_sql->execute();
         $search_sql->store_result();
+        
+        if ($search_sql->num_rows > 0) {
+            $search_sql->bind_result($type, $ename, $cname, $dob, $gender, $email, $phone, $address, $status, $dbcardno, $date, $time, $venue,$iv);
+            $search_sql->fetch();
+            
+            $decrypted = openssl_decrypt($dbcardno, 'aes-256-cbc', $aesKey, 0, $iv);
+            //check card no
+            if($cardno!=$decrypted){
+                echo "Please enter the correct card number <br/><br/>";
+                
+            }else{
+                echo "Your appointment information is as follows: <br/><br/>";
+                echo "Appointment Type: " . $type . "<br/><br/>";
+                echo "English Name: " . $ename . "<br/><br/>";
+                echo "Chinese Name: " . $cname . "<br/><br/>";
+                echo "Date of Birth: " . $dob . "<br/><br/>";
+                echo "Gender: " . $gender . "<br/><br/>";
+                echo "Email: " . $email . "<br/><br/>";
+                echo "Phone: " . $phone . "<br/><br/>";
+                echo "Address: " . $address . "<br/><br/>";
+                echo "Appointment Status: " . $status . "<br/><br/>";
+                echo "Appointment Date: " . $date . "<br/><br/>";
+                echo "Appointment Time: " . $time . "<br/><br/>";
+                echo "Appointment Venue: " . $venue . "<br/><br/>";
+            }
 
-        // If login name can be found in table "user", forbid user register process
+       
+            
+           
 
-        if ($search_sql->num_rows <= 0) {
-            echo "<h2>Can't found the result.</h2>";
+
+
+
+          
+
         } else {
-            // $insert_sql = $conn->prepare("insert into user (hkid, ename, cname, dob, gender,email,phone,address,salt,status) values (?, ?, ?, ?, ?,?,?,?,?,?)");
-            // $salt = generateSalt(16);
-            // $iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
-            // $encrypted = openssl_encrypt($hkid, 'aes-256-cbc', $aesKey + $salt, 0, $iv);
-
-            // $insert_sql->bind_param("ssssssssss", $encrypted, $ename, $cname, $dob, $gender, $email, $phone, $address, $salt, $status);
-            // $insert_sql->execute();
-            // echo "<h2>Appointment Success!!</h2>";
+            echo "<h2>Can't found the result.</h2>";
+            
         }
+
+
+      
     } else {
         echo "<h3> $errMsg </h3>";
     }
     // Close connection
     mysqli_close($conn);
 
-    // This function generate a random string with particular length
-    function generateSalt($length)
-    {
-        $rand_str = "";
-        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-
-        // (1b) Write a for loop to generate a random string which the length is $length. The loop should randomly select a character and append it to string variable $rand_str
-
-        /*______________________________(1b)______________________________*/
-        for ($i = 0; $i < $length; $i++) {
-            $rand_str .= $chars[rand(0, strlen($chars) - 1)];
-        }
-
-        return $rand_str;
-    }
 
     ?>
     <a href="appointment_query.php">Go back to query appointment page</a>
     <br><br>
-    <a href="appointment_form.php">Go  to appointment  page</a>
+    <a href="appointment_form.php">Go to appointment page</a>
     <br><br>
     <a href="index.php">Go to Home page</a>
 </body>

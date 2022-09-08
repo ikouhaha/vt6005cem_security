@@ -28,7 +28,7 @@
     }
 
     $search_sql = $conn->prepare("SELECT a.user_id,a.start,a.expire,b.email FROM sys_session a inner join sys_user b on a.user_id = b.id where a.id = ?");
-    $search_sql->bind_param("i", $_SESSION['sessionId']);
+    $search_sql->bind_param("s", $_SESSION['sessionId']);
     $search_sql->execute();
     //$search_sql->fetch();
     $search_sql->store_result();
@@ -37,7 +37,9 @@
     if ($search_sql->num_rows > 0) {
         $search_sql->bind_result($id, $start, $expire, $email);
         $search_sql->fetch();
+
         if ($now > $expire) {
+            echo $start . " " . $expire . " " . $now . " " .$_SESSION['sessionId'];
             echo "Your session has expired! <a href='login_form.php'>Login here</a>";
         } else {
             echo "Welcome $email <br/>";
