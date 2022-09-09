@@ -25,7 +25,7 @@ $pwd = $_POST["pwd"];
 
 // If login name can be found in table "userhash"
 // Select database to search the corresponding user row
-$search_sql = $conn->prepare("SELECT id,salt, pwd as hash FROM sys_user WHERE email = ?");
+$search_sql = $conn->prepare("SELECT id,salt, pwd as hash,retry,retry_datetime FROM sys_user WHERE email = ?");
 $search_sql->bind_param("s", $email);
 $search_sql->execute();
 //$search_sql->fetch();
@@ -36,12 +36,19 @@ $search_sql->store_result();
 
 if($search_sql->num_rows > 0) 
 {       
-    $search_sql -> bind_result($id,$salt,$hash);
+    session_start();
+    $search_sql->bind_result($id, $salt, $hash, $retry, $retry_datetime);
     $search_sql -> fetch();
     $pwdhash = hash("sha512", $salt . $pwd);
 
-    session_start();
-    if(strcmp($pwdhash, $hash) == 0)
+    //check retry
+    $now = time();
+    if($retry >= 3 && $now - $retry_datetime < (60*30))
+    {
+        echo "You have tried 3 times, please try again after 30 minutes<br/><br/>";
+        
+        
+    }else if(strcmp($pwdhash, $hash) == 0)
     {
         
         $sid = uniqid();
@@ -52,13 +59,17 @@ if($search_sql->num_rows > 0)
         $search_sql = $conn->prepare("insert into sys_session(id,user_id,start,expire,client_ip) values(?,?,?,?,?)");
         $search_sql->bind_param("siiis", $sid,$id,$start,$expire,$ip);
         $search_sql->execute();
+        $sql = $conn->prepare("update sys_user set retry = 0,retry_datetime = null where id = ?");
+        $sql->bind_param("i", $id);
+        $sql->execute();
         header('Location: index.php');
-        
-
     }
     else
     {
         echo "<h2>The password is wrong, authentication failed</h2>";
+        $sql = $conn->prepare("update sys_user set retry = retry + 1,retry_datetime = ? where id = ?");
+        $sql->bind_param("ii", $now,$id);
+        $sql->execute();
     }
 }
 else

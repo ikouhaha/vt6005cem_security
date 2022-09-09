@@ -40,9 +40,13 @@ CREATE TABLE `sys_user` (
 	`address` VARCHAR(512),
 	`salt` VARCHAR(512),
 	`role` VARCHAR(100) NOT NULL DEFAULT 'user',
+	`retry` INT NOT NULL DEFAULT 0,
 	PRIMARY KEY (`id`),
 	UNIQUE INDEX `email_UNIQUE` (`email` ASC)
 );
+
+alter table sys_user add column `retry` INT NOT NULL DEFAULT 0;
+alter table sys_user add column `retry_datetime` VARCHAR(10)  ;
 
 
 CREATE TABLE `sys_session` (

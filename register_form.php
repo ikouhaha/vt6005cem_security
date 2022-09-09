@@ -5,10 +5,11 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 <!-- JavaScript Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+<script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body>
 <h2><a href="index.php">Home</a></h2>
-<form action="register_result.php" method="post">
+<form action="register_result.php" method="post" id="form">
 <h2>Register *required</h2>
 
 Email*: <input name="email" type="text" size="30" maxlength="100"  placeholder="eg. abc@email.com" required><br><br>
@@ -33,7 +34,20 @@ Gender*:  <div class="form-check form-check-inline">
 
 Phone*: <input name="phone" type="text" size="30" maxlength="100"  placeholder="eg. 22678951" required><br><br>
 Address*: <input name="address" type="text" size="30" maxlength="100"  placeholder="" required><br><br>
-<input name="submit" type="submit" value="submit">
+
+<button class="g-recaptcha" 
+        data-sitekey="6LeaJOchAAAAAJo605nDzUlZAXdO6yUM8HF9RuN0" 
+        data-callback='onSubmit' 
+        data-action='submit'>Submit</button> <BR/><BR/>
+
+<input  name="submit" type="submit" value="submit" style="visibility:hidden  ">
 </form>
 </body>
 </html>
+
+
+<script>
+   function onSubmit(token) {
+    document.getElementById("form").submit.click();
+   }
+ </script>

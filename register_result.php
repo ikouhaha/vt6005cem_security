@@ -112,7 +112,7 @@ if($allDataCorrect)
 {
     // Search user table to see whether user name is exist
     $search_sql = $conn->prepare("select * from sys_user where email = ?");
-    $search_sql->bind_param("s", $id);
+    $search_sql->bind_param("s", $email);
     $search_sql->execute();
     $search_sql->store_result();
 
@@ -120,7 +120,7 @@ if($allDataCorrect)
 
     if($search_sql->num_rows > 0) 
     {
-        echo "<h2>The user name is registered by others. Please use other user name</h2>";
+        echo "<h2>The email is registered by others. Please use other email</h2>";
     }
     else
     {
