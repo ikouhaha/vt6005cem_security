@@ -6,6 +6,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
 <!-- JavaScript Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+<script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 <body>
 
@@ -50,13 +51,13 @@ if ($search_sql->num_rows > 0) {
 
   ?>
 <h2><a href="index.php">Home</a></h2>
-<form action="appointment_query_result.php" method="post">
+<form action="appointment_query_result.php" method="post" id="form">
 <h2>Appointment query *required</h2>
 
 Query No*: <input type="text" name="querycode" required><br>
 <div id="passportarea" class="form-group">
     Certificate Type*:
-      <select name="cardtype" id="cardtype" required>
+      <select name="cardtype" id="cardtype" required onchange="showhkid()">
         <?php
 
         $sql = "SELECT value,display FROM sys_lookup_value where type = 'cardtype'";
@@ -74,7 +75,12 @@ Query No*: <input type="text" name="querycode" required><br>
       Certificate Number*: <input name="cardno" id="cardno" type="text" size="30" maxlength="100" placeholder="" required>
     </div>
 
-<input name="submit" type="submit" value="submit">
+    <button class="g-recaptcha" 
+        data-sitekey="6LeaJOchAAAAAJo605nDzUlZAXdO6yUM8HF9RuN0" 
+        data-callback='onSubmit' 
+        data-action='submit'>Submit</button> <BR/><BR/>
+
+<input  name="submit" type="submit" value="submit" style="visibility:hidden  ">
 </form>
 </body>
 </html>
@@ -83,19 +89,13 @@ Query No*: <input type="text" name="querycode" required><br>
 
   function showhkid() {
  
-    if (document.getElementById("apply").checked) {
-      document.getElementById("cardtype").value = "bc";
-      document.getElementById("cardbc").disabled = false;
-      document.getElementById("cardpp").disabled = false;
-      document.getElementById("cardhkid").disabled = true;
-      document.getElementById("cardno").placeholder = "";
+    if (document.getElementById("cardtype").value=="hkid") {
+        document.getElementById("cardno").placeholder = "eg. A123456(7)";
 
-    } else {
-      document.getElementById("cardtype").value = "hkid";
-      document.getElementById("cardbc").disabled = true;
-      document.getElementById("cardpp").disabled = true;
-      document.getElementById("cardhkid").disabled = false;
-      document.getElementById("cardno").placeholder = "eg. A123456(7)";
-    }
+    } 
   }
+
+  function onSubmit(token) {
+    document.getElementById("form").submit.click();
+   }
 </script>

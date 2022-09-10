@@ -6,6 +6,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
   <!-- JavaScript Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+  <script src="https://www.google.com/recaptcha/api.js"></script>
 </head>
 
 <body>
@@ -52,7 +53,7 @@ if ($search_sql->num_rows > 0) {
   ?>
 
   <h2><a href="index.php">Home</a></h2>
-  <form action="appointment_result.php" method="post">
+  <form action="appointment_result.php" method="post" id="form">
     <h2>Appointment *required</h2>
     <div class="form-group">
       Appointment Type*: <div class="form-check form-check-inline">
@@ -134,7 +135,12 @@ if ($search_sql->num_rows > 0) {
     </div>
 
     <div class="form-group">
-      <input name="submit" type="submit" value="submit">
+    <button class="g-recaptcha" 
+        data-sitekey="6LeaJOchAAAAAJo605nDzUlZAXdO6yUM8HF9RuN0" 
+        data-callback='onSubmit' 
+        data-action='submit'>Submit</button> <BR/><BR/>
+
+<input  name="submit" type="submit" value="submit" style="visibility:hidden  ">
     </div>
   </form>
 </body>
@@ -161,6 +167,10 @@ if ($search_sql->num_rows > 0) {
       document.getElementById("cardno").placeholder = "eg. A123456(7)";
     }
   }
+
+  function onSubmit(token) {
+    document.getElementById("form").submit.click();
+   }
 </script>
 
 <style>
