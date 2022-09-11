@@ -127,14 +127,12 @@
         $search_sql->bind_param("s", $uid);
         $search_sql->execute();
         $search_sql->store_result();
-
-
-        // If login name can be found in table "user", forbid user register process
+        
 
         if ($search_sql->num_rows > 0) {
             echo "<h2>Your appointment is made. Please query the appointment information</h2>";
         } else {
-
+            
             // Insert user data into table "hkid_appointment"
             $status = "pending";
             $insert_sql = $conn->prepare("insert into hkid_appointment (user_id, type, card_type, card_no, date, time, venue, query_code, status,iv) values (?, ?, ?, ?, ?, ?, ?, ?, ?,?)");

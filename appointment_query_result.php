@@ -93,10 +93,10 @@
         from hkid_appointment a inner join sys_user b on a.user_id = b.id
         left join sys_lookup_value ltype on ltype.type = 'type' and ltype.value = a.type
         left join sys_lookup_value ltime on ltime.type = 'time' and ltime.value = a.time
-        left join sys_lookup_value lvenue on lvenue.type = 'venues' and lvenue.value = a.venue where card_type = ?  and query_code = ?");
+        left join sys_lookup_value lvenue on lvenue.type = 'venues' and lvenue.value = a.venue where card_type = ?  and query_code = ? and b.id = ?");
         
         
-        $search_sql->bind_param("ss", $cardtype, $querycode);
+        $search_sql->bind_param("sss", $cardtype, $querycode, $uid);
         $search_sql->execute();
         $search_sql->store_result();
         
